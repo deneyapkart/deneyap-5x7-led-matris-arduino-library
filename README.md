@@ -3,7 +3,7 @@
 
 ***** Add photo ****
 
-This Arduino library for Deneyap 5x7 LED Matrix
+Arduino library for Deneyap 5x7 LED Matrix
 
 ## :mag_right:Specifications 
 - `Product ID` **M34**, **mpv1.0**
