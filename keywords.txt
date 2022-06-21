@@ -1,0 +1,40 @@
+#######################################
+# Syntax Coloring Map For Deneyap_5x7LedEkran
+#######################################
+
+#######################################
+# Library (KEYWORD1)
+#######################################
+
+Deneyap_5x7LedEkran	KEYWORD1	Deneyap_5x7LedEkran
+
+#######################################
+# Class (KEYWORD1)
+#######################################
+
+DotMatrix	KEYWORD1	DotMatrix 
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin		KEYWORD2
+isConnected	KEYWORD2
+getFwVersion	KEYWORD2
+setI2Caddress	KEYWORD2
+dotrow1		KEYWORD2
+dotrow2		KEYWORD2
+dotrow3		KEYWORD2
+dotrow4		KEYWORD2
+dotrow5		KEYWORD2
+dotrow6		KEYWORD2
+dotrow7		KEYWORD2
+drawLedMatrix	KEYWORD2
+pixelLed	KEYWORD2
+resetDotRows	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+COL_SIZE	LITERAL1
+ROW_SIZE	LITERAL1
+NUM_LEDS	LITERAL1
