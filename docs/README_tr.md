@@ -7,6 +7,8 @@ Deneyap 5x7 LED Matris Modülü için Arduino kütüphanesidir.
 ## :mag_right:Özellikler 
 - `Ürün ID` **M34**, **mpv1.0**
 - `MCU` STM8S003F3
+- `Ağırlık`
+- `Modul Boyutları` 
 - `I2C Adres` 0x0A, 0x4A
 
 | Adres |  | 
@@ -31,6 +33,8 @@ Bu Arduino kütüphanesi Deneyap 5x7 LED Matris modülünün I2C çevre birimi i
 
 ## Sürüm Geçmişi
 1.0.0 - ilk sürüm
+
+1.0.1 - library.properties dosyasının güncellenmesi
 
 ## :rocket:Donanım Bağlantıları
 - Deneyap 5x7 LED Matris ile kullanılan geliştirme kartı I2C kablosu ile bağlanabilir

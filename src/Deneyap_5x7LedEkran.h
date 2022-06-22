@@ -1,11 +1,11 @@
 /*
 *****************************************************************************
-@file       Deneyap_5x7LedEkran.h
-@mainpage   Deneyap 5X7 LED Matris Library header file
-@version    V1.0.0
-@date       December 03, 2022
-@brief      This file contains all function prototypes and macros
-            for Deneyap 5x7 Dot Matrix library
+@file         Deneyap_5x7LedEkran.h
+@mainpage     Deneyap 5X7 LED Matris Arduino library header file
+@version      v1.0.1
+@date         June 22, 2022
+@brief        This file contains all function prototypes and macros
+              for Deneyap 5x7 Dot Matrix Arduino library
 
 *****************************************************************************
 */

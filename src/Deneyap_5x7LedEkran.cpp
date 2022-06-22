@@ -1,11 +1,13 @@
 /*
 *****************************************************************************
-@file       Deneyap_5x7LedEkran.cpp
-@mainpage   Deneyap 5X7 LED Matris Library Source File
-@maintainer RFtek Electronics <techsupport@rftek.com.tr>
-@version    V1.0.0
-@date       December 03, 2022
-@brief      Includes functions to control Deneyap 5x7 Dot Matrix library
+@file         Deneyap_5x7LedEkran.cpp
+@mainpage     Deneyap 5X7 LED Matris Arduino library source file
+@maintainer   RFtek Electronics <techsupport@rftek.com.tr>
+@version      v1.0.1
+@date         June 22, 2022
+@brief        Includes functions to control Deneyap 5x7 Dot Matrix 
+              Arduino library
+
 Library includes:
 --> Configuration functions
 --> Data manipulation functions
