@@ -62,7 +62,7 @@ public:
     bool dotrow5(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5);
     bool dotrow6(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5);
     bool dotrow7(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5);
-    void drawLedMatrix(const byte bitmap[NUM_LEDS]);
+    void drawLedMatrix(const byte bitmap[NUM_LEDS], int duration);
     void pixelLed(uint8_t numRows, uint8_t numCols);
     void resetDotRows(void);
 

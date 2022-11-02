@@ -5,7 +5,7 @@
 @maintainer   RFtek Electronics <techsupport@rftek.com.tr>
 @version      v1.0.1
 @date         June 22, 2022
-@brief        Includes functions to control Deneyap 5x7 Dot Matrix 
+@brief        Includes functions to control Deneyap 5x7 Dot Matrix
               Arduino library
 
 Library includes:
@@ -207,7 +207,8 @@ bool DotMatrix::dotrow7(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, 
  * @param
  * @retval
  */
-void DotMatrix::drawLedMatrix(const byte bitmap[NUM_LEDS]) {
+void DotMatrix::drawLedMatrix(const byte bitmap[NUM_LEDS], int duration) {
+  for (int i=0; i<duration; i++ ){
     dotrow1(bitmap[0], bitmap[1], bitmap[2], bitmap[3], bitmap[4]);
     dotrow2(bitmap[5], bitmap[6], bitmap[7], bitmap[8], bitmap[9]);
     dotrow3(bitmap[10], bitmap[11], bitmap[12], bitmap[13], bitmap[14]);
@@ -215,6 +216,7 @@ void DotMatrix::drawLedMatrix(const byte bitmap[NUM_LEDS]) {
     dotrow5(bitmap[20], bitmap[21], bitmap[22], bitmap[23], bitmap[24]);
     dotrow6(bitmap[25], bitmap[26], bitmap[27], bitmap[28], bitmap[29]);
     dotrow7(bitmap[30], bitmap[31], bitmap[32], bitmap[33], bitmap[34]);
+    }
 }
 
 /**
