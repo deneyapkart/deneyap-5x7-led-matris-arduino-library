@@ -9,7 +9,7 @@ Arduino library for Deneyap 5x7 LED Matrix
 - `Product ID` **M34**, **mpv1.0**
 - `MCU` STM8S003F3
 - `Weight` 
-- `Module Dimension`
+- `Module Dimension` 25,4 mm x 50,8 mm
 - `I2C address` 0x0A, 0x4A
 
 | Address |  | 
@@ -18,9 +18,13 @@ Arduino library for Deneyap 5x7 LED Matrix
 | 0x4A | address when ADR1 pad is shorted |
 
 ## :closed_book:Documentation
-Deneyap 5x7 LED Matrix
+[Deneyap 5x7 LED Matrix](https://docs.deneyapkart.org/en/content/contentDetail/deneyap-modul-deneyap-5x7-led-matris-m34)
 
-How to install a Arduino Library
+[Deneyap 5x7 LED Matrix Shematic](https://cdn.deneyapkart.org/media/upload/userFormUpload/WK1yhelN3AwpEflznnZfwsBHZ6iLXOWE.pdf)
+
+[Deneyap 5x7 LED Matrix Mechanical Drawing](https://cdn.deneyapkart.org/media/upload/userFormUpload/njN5GWrocMBeOjJ2EcCy0OTVWnrlxiDc.pdf)
+
+[How to install a Arduino Library](https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries)
 
 ## :pushpin:Deneyap 5x7 LED Matrix 
 This Arduino library allows you to use Deneyap 5x7 LED Matrix module with I2C peripheral. You can use this library in your projects with any Arduino compatible board with I2C peripheral.
@@ -33,9 +37,11 @@ This Arduino library allows you to use Deneyap 5x7 LED Matrix module with I2C pe
 - `library.properties ` General library properties for the Arduino package manager
 
 ## Version History
-1.0.0 - initial release
+1.0.2 - updated comment line in examples and function(drawLedMatrix)
 
-1.0.1 - update library.properties file
+1.0.1 - updated library.properties file
+
+1.0.0 - initial release
 
 ## :rocket:Hardware Connections
 - Deneyap 5x7 LED Matrix and Board can be connected with I2C cable

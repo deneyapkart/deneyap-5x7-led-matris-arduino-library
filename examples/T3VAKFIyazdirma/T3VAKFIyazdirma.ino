@@ -1,17 +1,15 @@
 /*
  *   T3 VAKFI Yazdırma örneği,
- *
  *   Bu örnekte temel konfigürasyon ayarları yapılmaktadır.
- *   5x7 LED ekrandanın sırasıyla T 3 V A K F I yazdırmaktadır.
+ *   5x7 LED Matris'de sırasıyla T 3 V A K F I yazdırmaktadır.
  *
  *   Bu algılayıcı I2C haberleşme protokolü ile çalışmaktadır.
  *
  *   Bu örnek Deneyap 5x7 LED Matris için oluşturulmuştur
- *      ------>  www.....com  <------ //docs
+ *      ------>  https://docs.deneyapkart.org/tr/content/contentDetail/deneyap-modul-deneyap-5x7-led-matris-m34  <------
  *      ------>  https://github.com/deneyapkart/deneyap-5x7-led-matris-arduino-library  <------ 
- *
- */
-#include <Deneyap_5x7LedEkran.h>                         // Deneyap_5x7LedEkran.h kütüphanesi eklendi
+*/
+#include <Deneyap_5x7LedEkran.h>                         // Deneyap 5x7 LED Matris kütüphanesi eklenmesi
 
 DotMatrix LEDMatris;                                     // DotMatrix için Class tanımlaması
 
@@ -19,7 +17,7 @@ void setup() {
     Serial.begin(115200);                                // Seri haberleşme başlatıldı
     if (!LEDMatris.begin(0x0A)) {                        // begin(slaveAdress) fonksiyonu ile cihazların haberleşmesi başlatıldı
         delay(3000);
-        Serial.println("I2C bağlantısı başarısız ");     // I2C bağlantısı başarısız olursa seri terminale yazdırma
+        Serial.println("I2C bağlantısı başarısız ");     // I2C bağlantısı başarısız olursa seri port ekranına yazdırma
         while (1);
     }
 }

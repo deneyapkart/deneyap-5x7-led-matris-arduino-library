@@ -2,8 +2,8 @@
 *****************************************************************************
 @file         Deneyap_5x7LedEkran.h
 @mainpage     Deneyap 5X7 LED Matris Arduino library header file
-@version      v1.0.1
-@date         June 22, 2022
+@version      v1.0.2
+@date         November 07, 2022
 @brief        This file contains all function prototypes and macros
               for Deneyap 5x7 Dot Matrix Arduino library
 
@@ -62,7 +62,7 @@ public:
     bool dotrow5(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5);
     bool dotrow6(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5);
     bool dotrow7(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5);
-    void drawLedMatrix(const byte bitmap[NUM_LEDS], int duration);
+    void drawLedMatrix(const byte bitmap[NUM_LEDS], int duration = 100);
     void pixelLed(uint8_t numRows, uint8_t numCols);
     void resetDotRows(void);
 
