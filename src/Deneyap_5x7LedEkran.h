@@ -2,8 +2,8 @@
 *****************************************************************************
 @file         Deneyap_5x7LedEkran.h
 @mainpage     Deneyap 5X7 LED Matris Arduino library header file
-@version      v1.0.2
-@date         November 07, 2022
+@version      v1.0.3
+@date         JULY 30, 2025
 @brief        This file contains all function prototypes and macros
               for Deneyap 5x7 Dot Matrix Arduino library
 
@@ -65,6 +65,9 @@ public:
     void drawLedMatrix(const byte bitmap[NUM_LEDS], int duration = 100);
     void pixelLed(uint8_t numRows, uint8_t numCols);
     void resetDotRows(void);
+    
+    /* ESP32 3.3.0 uyumluluk fonksiyonu */
+    bool checkI2CHealth(void);               // I2C bağlantı sağlığını kontrol et
 
     uint8_t i2cData2;
     uint8_t i2cData1;
