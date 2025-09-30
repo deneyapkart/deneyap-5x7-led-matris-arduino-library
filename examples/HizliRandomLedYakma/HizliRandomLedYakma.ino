@@ -16,17 +16,20 @@ DotMatrix LEDMatris;                                     // DotMatrix için Clas
 
 void setup() {
     Serial.begin(115200);                                // Seri haberleşme başlatılması
+    delay(1000);                                         // I2C için gerekli zaman
     if (!LEDMatris.begin(0x0A)) {                        // begin(slaveAdress) fonksiyonu ile cihazların haberleşmesi başlatılması
         delay(3000);
         Serial.println("I2C bağlantısı başarısız ");     // I2C bağlantısı başarısız olursa seri port ekranına yazdırması
         while (1);
     }
+    LEDMatris.resetDotRows();                            // Başlangıçta LED'leri temizle
+    delay(500);
 }
 
 void loop() {
-    for (int i; i < 100; ++i) {
+    for (int i=0; i < 100; ++i) {
         int randNumberRow = random(1, 8);                 // 1'den 7 kadar Random satır sayısı ataması
         int randNumberCol = random(1, 6);                 // 1'den 5 kadar Random sütun sayısı ataması
-        LEDMatris.pixelLed(randNumberRow, randNumberCol); // Random atanan satır ve sutun sayısındaki LED'in yanması
+        LEDMatris.pixelLed(randNumberRow, randNumberCol);
     }
 }
