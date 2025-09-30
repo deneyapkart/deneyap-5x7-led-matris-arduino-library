@@ -2,9 +2,9 @@
 *****************************************************************************
 @file         Deneyap_5x7LedEkran.cpp
 @mainpage     Deneyap 5X7 LED Matris Arduino library source file
-@maintainer   RFtek Electronics <techsupport@rftek.com.tr>
-@version      v1.0.2
-@date         November 07, 2022
+@maintainer   Mehmet Emre Çelebi, RFtek Electronics <techsupport@rftek.com.tr>
+@version      v1.0.3
+@date         30 Temmuz 2025
 @brief        Includes functions to control Deneyap 5x7 Dot Matrix
               Arduino library
 
@@ -25,16 +25,27 @@ Library includes:
  * @retval connection status (1 --> connected, 0 --> not connected)
  */
 bool DotMatrix::begin(uint8_t address, TwoWire &port) {
-    Wire.begin();
-#if defined(ARDUINO_DYM)
-    Wire.setClock(100000);
-#else
-    Wire.setClock(50000);
-#endif
     _i2cAddress = address;
     _i2cPort = &port;
     _dataPacket = {0};
+    
+    _i2cPort->begin();
+    
+    // ESP32 3.3.0 sürümü için optimize edilmiş ayarlar
+#if defined(ARDUINO_DYM)
+    _i2cPort->setClock(100000);
+#elif defined(ESP32)
+    // ESP32 3.3.0 için özel ayarlar
+    _i2cPort->setClock(50000);           // Daha düşük clock
+    _i2cPort->setTimeout(50);            // Daha kısa timeout
+    _i2cPort->setBufferSize(128);        // Buffer boyutunu artır (3.3.0 özelliği)
+#else
+    _i2cPort->setClock(50000);
+#endif
 
+    // ESP32 3.3.0 için daha uzun başlatma gecikmesi
+    delay(50);
+    
     return isConnected();
 }
 
@@ -48,7 +59,7 @@ bool DotMatrix::isConnected() {
 
     if (_i2cPort->endTransmission() == 0)
     {
-        resetDotRows();
+        // resetDotRows() çağrısını kaldırdık - başlatmada sorun yaratıyordu
         return true;
     }
 
@@ -225,6 +236,8 @@ void DotMatrix::drawLedMatrix(const byte bitmap[NUM_LEDS], int duration) {
  * @retval
  */
 void DotMatrix::pixelLed(uint8_t numRows, uint8_t numCols) {
+    // resetDotRows() çağrısını kaldırdık - bu sorunun ana nedeni
+    
     switch (numRows) {
     case 1:
         if (numCols == 1)
@@ -328,6 +341,30 @@ void DotMatrix::resetDotRows(void) {
     dotrow7(0, 0, 0, 0, 0);
 }
 
+/**
+ * @brief  ESP32 3.3.0 için I2C bağlantı sağlığını kontrol eder
+ * @param  None
+ * @retval I2C bağlantı durumu (true --> sağlıklı, false --> sorunlu)
+ */
+bool DotMatrix::checkI2CHealth(void) {
+    // Basit bir ping testi
+    _i2cPort->beginTransmission(_i2cAddress);
+    uint8_t result = _i2cPort->endTransmission();
+    
+    if (result != 0) {
+        // I2C hatası durumunda yeniden başlatma
+        _i2cPort->begin();
+#if defined(ESP32)
+        _i2cPort->setClock(50000);
+        _i2cPort->setTimeout(50);
+        _i2cPort->setBufferSize(128);
+#endif
+        delay(10);
+        return false;
+    }
+    return true;
+}
+
 /* I2C Data Transaction Funstions --------------------------------------------*/
 
 /**
@@ -387,14 +424,42 @@ uint16_t DotMatrix::I2C_ReadFirmwareData16bit(DotMatrix_DataPacket_TypeDef *data
  * @retval Transmission status (1 --> No error, Otherwise --> Transmission error)
  */
 bool DotMatrix::I2C_SendDataPacket(DotMatrix_DataPacket_TypeDef *dataPacket) {
-    _i2cPort->beginTransmission(_i2cAddress);
-    _i2cPort->write(dataPacket->command);
-    _i2cPort->write(dataPacket->dataSize);
+    // ESP32 3.3.0 için gelişmiş I2C hata yönetimi
+    uint8_t retryCount = 0;
+    uint8_t result;
+    
+    do {
+        // ESP32 3.3.0'da I2C buffer temizliği
+#if defined(ESP32)
+        if (retryCount > 0) {
+            _i2cPort->flush();  // Buffer'ı temizle
+        }
+#endif
+        
+        _i2cPort->beginTransmission(_i2cAddress);
+        _i2cPort->write(dataPacket->command);
+        _i2cPort->write(dataPacket->dataSize);
 
-    for (uint8_t i = 0; i < _dataPacket.dataSize; i++)
-        _i2cPort->write(_dataPacket.data[i]);
+        for (uint8_t i = 0; i < dataPacket->dataSize; i++) {
+            _i2cPort->write(dataPacket->data[i]);
+        }
 
-    if (_i2cPort->endTransmission() == 0)
-        return true;
-    return false;
+        result = _i2cPort->endTransmission();
+        
+        if (result != 0) {
+            retryCount++;
+            if (retryCount < 3) {
+                // ESP32 3.3.0 için adaptif gecikme
+                delayMicroseconds(100 + (retryCount * 200));
+            }
+        }
+        
+    } while (result != 0 && retryCount < 3);
+    
+    // Başarılı I2C işlemi sonrası minimal gecikme
+    if (result == 0) {
+        delayMicroseconds(20);  // ESP32 3.3.0 için daha kısa gecikme
+    }
+    
+    return (result == 0);
 }
