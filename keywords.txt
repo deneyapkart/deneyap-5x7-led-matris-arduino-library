@@ -13,6 +13,7 @@ Deneyap_5x7LedEkran	KEYWORD1	Deneyap_5x7LedEkran
 #######################################
 
 DotMatrix	KEYWORD1	DotMatrix 
+RGB5x7LedMatris	KEYWORD1	RGB5x7LedMatris
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -31,6 +32,10 @@ dotrow7		KEYWORD2
 drawLedMatrix	KEYWORD2
 pixelLed	KEYWORD2
 resetDotRows	KEYWORD2
+checkI2CHealth	KEYWORD2
+show	KEYWORD2
+setPixelXY	KEYWORD2
+drawBitmap	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
@@ -38,3 +43,6 @@ resetDotRows	KEYWORD2
 COL_SIZE	LITERAL1
 ROW_SIZE	LITERAL1
 NUM_LEDS	LITERAL1
+NO_OF_LEDS	LITERAL1
+I2C_SLV_ADDR_DEFAULT	LITERAL1
+I2C_SLV_ADDR_ALT1	LITERAL1

@@ -3,7 +3,9 @@
  *   Bu örnekte satır ve sütun pinleri array olarak tanıtılmaktadır.
  *   5x7 LED Matris'de çizgi kaymaktadır.
  *
- *   Bu algılayıcı I2C haberleşme protokolü ile çalışmaktadır. 
+ *   Bu örnekte I2C kullanılmamaktadır, LED'ler modülün ROW/COL pinlerine bağlanan kart pinleriyle doğrudan sürülmektedir.
+ *   Pin isimleri (D0, D1, ... DAC2) Deneyap Kart içindir, farklı bir kartta kendi pinlerinizi yazmalısınız.
+ *   Bu örnek yalnızca eski (tek renkli) modül için geçerlidir.
  *
  *   Bu örnek Deneyap 5x7 LED Matris için oluşturulmuştur
  *      ------>  https://docs.deneyapkart.org/tr/content/contentDetail/deneyap-modul-deneyap-5x7-led-matris-m34  <------

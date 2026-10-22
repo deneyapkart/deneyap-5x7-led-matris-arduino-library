@@ -3,10 +3,10 @@
 @file         Deneyap_5x7LedEkran.cpp
 @mainpage     Deneyap 5X7 LED Matris Arduino library source file
 @maintainer   Mehmet Emre Çelebi, RFtek Electronics <techsupport@rftek.com.tr>
-@version      v1.0.3
-@date         30 Temmuz 2025
-@brief        Includes functions to control Deneyap 5x7 Dot Matrix
-              Arduino library
+@version      v1.1.0
+@date         21 Ekim 2026
+@brief        Includes functions to control first generation
+              Deneyap 5x7 Dot Matrix (STM8S003, single color)
 
 Library includes:
 --> Configuration functions
@@ -28,24 +28,12 @@ bool DotMatrix::begin(uint8_t address, TwoWire &port) {
     _i2cAddress = address;
     _i2cPort = &port;
     _dataPacket = {0};
-    
-    _i2cPort->begin();
-    
-    // ESP32 3.3.0 sürümü için optimize edilmiş ayarlar
-#if defined(ARDUINO_DYM)
-    _i2cPort->setClock(100000);
-#elif defined(ESP32)
-    // ESP32 3.3.0 için özel ayarlar
-    _i2cPort->setClock(50000);           // Daha düşük clock
-    _i2cPort->setTimeout(50);            // Daha kısa timeout
-    _i2cPort->setBufferSize(128);        // Buffer boyutunu artır (3.3.0 özelliği)
-#else
-    _i2cPort->setClock(50000);
-#endif
 
-    // ESP32 3.3.0 için daha uzun başlatma gecikmesi
+    configureBus();
+
+    // ESP32 3.x için daha uzun başlatma gecikmesi
     delay(50);
-    
+
     return isConnected();
 }
 
@@ -59,7 +47,6 @@ bool DotMatrix::isConnected() {
 
     if (_i2cPort->endTransmission() == 0)
     {
-        // resetDotRows() çağrısını kaldırdık - başlatmada sorun yaratıyordu
         return true;
     }
 
@@ -69,12 +56,19 @@ bool DotMatrix::isConnected() {
 /**
  * @brief  Requests firmware version of the device
  * @param  None
- * @retval Device firmware version
+ * @retval Device firmware version ((major << 8) | minor), 0 --> read error
  */
 uint16_t DotMatrix::getFwVersion() {
-    _dataPacket.command = DOTMATRIX_REQUEST_FW_VERSION;
-    _dataPacket.dataSize = 0;
-    return I2C_ReadFirmwareData16bit(&_dataPacket);
+    _i2cPort->beginTransmission(_i2cAddress);
+    _i2cPort->write((uint8_t)DOTMATRIX_REQUEST_FW_VERSION);
+    _i2cPort->endTransmission();
+
+    if (_i2cPort->requestFrom(_i2cAddress, static_cast<uint8_t>(2)) != 2)
+        return 0;
+
+    i2cData2 = _i2cPort->read();
+    i2cData1 = _i2cPort->read();
+    return ((uint16_t)i2cData1 << 8) | i2cData2;
 }
 
 /**
@@ -82,7 +76,6 @@ uint16_t DotMatrix::getFwVersion() {
  * @param  address: I2C address to be set
  * @retval Transmission status (1 --> No error, Otherwise --> Transmission error)
  */
-
 bool DotMatrix::setI2Caddress(uint8_t newAddress) {
     _dataPacket.command = DOTMATRIX_CHANGE_ADDR;
     _dataPacket.dataSize = 1;
@@ -99,324 +92,139 @@ bool DotMatrix::setI2Caddress(uint8_t newAddress) {
     }
 }
 
-/* I2C Data Manipulation Functions -------------------------------------------*/
-
 /**
- * @brief  Sends dot marix  column data  based on data protocol format
- * @param  columnData: 0 to 1
- * @retval Transmission status (1 --> No error, Otherwise --> Transmission error)
- */
-bool DotMatrix::dotrow1(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
-    _dataPacket.command = (uint8_t)ROW1;
-    _dataPacket.dataSize = (uint8_t)0x5;
-    _dataPacket.data[0] = col1;
-    _dataPacket.data[1] = col2;
-    _dataPacket.data[2] = col3;
-    _dataPacket.data[3] = col4;
-    _dataPacket.data[4] = col5;
-    return I2C_SendDataPacket(&_dataPacket);
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-bool DotMatrix::dotrow2(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
-    _dataPacket.command = (uint8_t)ROW2;
-    _dataPacket.dataSize = (uint8_t)0x5;
-    _dataPacket.data[0] = col1;
-    _dataPacket.data[1] = col2;
-    _dataPacket.data[2] = col3;
-    _dataPacket.data[3] = col4;
-    _dataPacket.data[4] = col5;
-    return I2C_SendDataPacket(&_dataPacket);
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-bool DotMatrix::dotrow3(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
-    _dataPacket.command = (uint8_t)ROW3;
-    _dataPacket.dataSize = (uint8_t)0x5;
-    _dataPacket.data[0] = col1;
-    _dataPacket.data[1] = col2;
-    _dataPacket.data[2] = col3;
-    _dataPacket.data[3] = col4;
-    _dataPacket.data[4] = col5;
-    return I2C_SendDataPacket(&_dataPacket);
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-bool DotMatrix::dotrow4(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
-    _dataPacket.command = (uint8_t)ROW4;
-    _dataPacket.dataSize = (uint8_t)0x5;
-    _dataPacket.data[0] = col1;
-    _dataPacket.data[1] = col2;
-    _dataPacket.data[2] = col3;
-    _dataPacket.data[3] = col4;
-    _dataPacket.data[4] = col5;
-    return I2C_SendDataPacket(&_dataPacket);
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-bool DotMatrix::dotrow5(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
-    _dataPacket.command = (uint8_t)ROW5;
-    _dataPacket.dataSize = (uint8_t)0x5;
-    _dataPacket.data[0] = col1;
-    _dataPacket.data[1] = col2;
-    _dataPacket.data[2] = col3;
-    _dataPacket.data[3] = col4;
-    _dataPacket.data[4] = col5;
-    return I2C_SendDataPacket(&_dataPacket);
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-bool DotMatrix::dotrow6(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
-    _dataPacket.command = (uint8_t)ROW6;
-    _dataPacket.dataSize = (uint8_t)0x5;
-    _dataPacket.data[0] = col1;
-    _dataPacket.data[1] = col2;
-    _dataPacket.data[2] = col3;
-    _dataPacket.data[3] = col4;
-    _dataPacket.data[4] = col5;
-    return I2C_SendDataPacket(&_dataPacket);
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-bool DotMatrix::dotrow7(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
-    _dataPacket.command = (uint8_t)ROW7;
-    _dataPacket.dataSize = (uint8_t)0x5;
-    _dataPacket.data[0] = col1;
-    _dataPacket.data[1] = col2;
-    _dataPacket.data[2] = col3;
-    _dataPacket.data[3] = col4;
-    _dataPacket.data[4] = col5;
-    return I2C_SendDataPacket(&_dataPacket);
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-void DotMatrix::drawLedMatrix(const byte bitmap[NUM_LEDS], int duration) {
-  for (int i=0; i<duration; i++ ){
-    dotrow1(bitmap[0], bitmap[1], bitmap[2], bitmap[3], bitmap[4]);
-    dotrow2(bitmap[5], bitmap[6], bitmap[7], bitmap[8], bitmap[9]);
-    dotrow3(bitmap[10], bitmap[11], bitmap[12], bitmap[13], bitmap[14]);
-    dotrow4(bitmap[15], bitmap[16], bitmap[17], bitmap[18], bitmap[19]);
-    dotrow5(bitmap[20], bitmap[21], bitmap[22], bitmap[23], bitmap[24]);
-    dotrow6(bitmap[25], bitmap[26], bitmap[27], bitmap[28], bitmap[29]);
-    dotrow7(bitmap[30], bitmap[31], bitmap[32], bitmap[33], bitmap[34]);
-    }
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-void DotMatrix::pixelLed(uint8_t numRows, uint8_t numCols) {
-    // resetDotRows() çağrısını kaldırdık - bu sorunun ana nedeni
-    
-    switch (numRows) {
-    case 1:
-        if (numCols == 1)
-            dotrow1(1, 0, 0, 0, 0);
-        else if (numCols == 2)
-            dotrow1(0, 1, 0, 0, 0);
-        else if (numCols == 3)
-            dotrow1(0, 0, 1, 0, 0);
-        else if (numCols == 4)
-            dotrow1(0, 0, 0, 1, 0);
-        else if (numCols == 5)
-            dotrow1(0, 0, 0, 0, 1);
-        break;
-    case 2:
-        if (numCols == 1)
-            dotrow2(1, 0, 0, 0, 0);
-        else if (numCols == 2)
-            dotrow2(0, 1, 0, 0, 0);
-        else if (numCols == 3)
-            dotrow2(0, 0, 1, 0, 0);
-        else if (numCols == 4)
-            dotrow2(0, 0, 0, 1, 0);
-        else if (numCols == 5)
-            dotrow2(0, 0, 0, 0, 1);
-        break;
-    case 3:
-        if (numCols == 1)
-            dotrow3(1, 0, 0, 0, 0);
-        else if (numCols == 2)
-            dotrow3(0, 1, 0, 0, 0);
-        else if (numCols == 3)
-            dotrow3(0, 0, 1, 0, 0);
-        else if (numCols == 4)
-            dotrow3(0, 0, 0, 1, 0);
-        else if (numCols == 5)
-            dotrow3(0, 0, 0, 0, 1);
-        break;
-    case 4:
-        if (numCols == 1)
-            dotrow4(1, 0, 0, 0, 0);
-        else if (numCols == 2)
-            dotrow4(0, 1, 0, 0, 0);
-        else if (numCols == 3)
-            dotrow4(0, 0, 1, 0, 0);
-        else if (numCols == 4)
-            dotrow4(0, 0, 0, 1, 0);
-        else if (numCols == 5)
-            dotrow4(0, 0, 0, 0, 1);
-        break;
-    case 5:
-        if (numCols == 1)
-            dotrow5(1, 0, 0, 0, 0);
-        else if (numCols == 2)
-            dotrow5(0, 1, 0, 0, 0);
-        else if (numCols == 3)
-            dotrow5(0, 0, 1, 0, 0);
-        else if (numCols == 4)
-            dotrow5(0, 0, 0, 1, 0);
-        else if (numCols == 5)
-            dotrow5(0, 0, 0, 0, 1);
-        break;
-    case 6:
-        if (numCols == 1)
-            dotrow6(1, 0, 0, 0, 0);
-        else if (numCols == 2)
-            dotrow6(0, 1, 0, 0, 0);
-        else if (numCols == 3)
-            dotrow6(0, 0, 1, 0, 0);
-        else if (numCols == 4)
-            dotrow6(0, 0, 0, 1, 0);
-        else if (numCols == 5)
-            dotrow6(0, 0, 0, 0, 1);
-        break;
-    case 7:
-        if (numCols == 1)
-            dotrow7(1, 0, 0, 0, 0);
-        else if (numCols == 2)
-            dotrow7(0, 1, 0, 0, 0);
-        else if (numCols == 3)
-            dotrow7(0, 0, 1, 0, 0);
-        else if (numCols == 4)
-            dotrow7(0, 0, 0, 1, 0);
-        else if (numCols == 5)
-            dotrow7(0, 0, 0, 0, 1);
-        break;
-    }
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-void DotMatrix::resetDotRows(void) {
-    dotrow1(0, 0, 0, 0, 0);
-    dotrow2(0, 0, 0, 0, 0);
-    dotrow3(0, 0, 0, 0, 0);
-    dotrow4(0, 0, 0, 0, 0);
-    dotrow5(0, 0, 0, 0, 0);
-    dotrow6(0, 0, 0, 0, 0);
-    dotrow7(0, 0, 0, 0, 0);
-}
-
-/**
- * @brief  ESP32 3.3.0 için I2C bağlantı sağlığını kontrol eder
+ * @brief  ESP32 3.x için I2C bağlantı sağlığını kontrol eder
  * @param  None
  * @retval I2C bağlantı durumu (true --> sağlıklı, false --> sorunlu)
  */
 bool DotMatrix::checkI2CHealth(void) {
     // Basit bir ping testi
-    _i2cPort->beginTransmission(_i2cAddress);
-    uint8_t result = _i2cPort->endTransmission();
-    
-    if (result != 0) {
+    if (!isConnected()) {
         // I2C hatası durumunda yeniden başlatma
-        _i2cPort->begin();
-#if defined(ESP32)
-        _i2cPort->setClock(50000);
-        _i2cPort->setTimeout(50);
-        _i2cPort->setBufferSize(128);
-#endif
+        configureBus();
         delay(10);
         return false;
     }
     return true;
 }
 
-/* I2C Data Transaction Funstions --------------------------------------------*/
+/* I2C Data Manipulation Functions -------------------------------------------*/
 
 /**
- * @brief  Reads 8bit data from I2C interface
- * @param  dataPacket: includes protocol to request data
- * @retval I2C 8bit data
+ * @brief  Sends dot matrix column data of one row based on data protocol format
+ * @param  colX: 0 (off) or 1 (on)
+ * @retval Transmission status (1 --> No error, Otherwise --> Transmission error)
  */
-uint8_t DotMatrix::I2C_ReadData8bit(DotMatrix_DataPacket_TypeDef *dataPacket) {
-    _i2cPort->beginTransmission(_i2cAddress);
-    _i2cPort->write(dataPacket->command);
-    _i2cPort->endTransmission();
+bool DotMatrix::dotrow1(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
+    return sendRow(ROW1, col1, col2, col3, col4, col5);
+}
 
-    if (_i2cPort->requestFrom(_i2cAddress, static_cast<uint8_t>(1)) != 0)
-        return _i2cPort->read();
-    return 0;
+bool DotMatrix::dotrow2(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
+    return sendRow(ROW2, col1, col2, col3, col4, col5);
+}
+
+bool DotMatrix::dotrow3(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
+    return sendRow(ROW3, col1, col2, col3, col4, col5);
+}
+
+bool DotMatrix::dotrow4(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
+    return sendRow(ROW4, col1, col2, col3, col4, col5);
+}
+
+bool DotMatrix::dotrow5(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
+    return sendRow(ROW5, col1, col2, col3, col4, col5);
+}
+
+bool DotMatrix::dotrow6(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
+    return sendRow(ROW6, col1, col2, col3, col4, col5);
+}
+
+bool DotMatrix::dotrow7(uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
+    return sendRow(ROW7, col1, col2, col3, col4, col5);
 }
 
 /**
- * @brief  Reads 16bit data from I2C interface
- * @param  dataPacket: includes protocol to request data
- * @retval I2C 16bit data
+ * @brief  Draws a 5x7 bitmap. The module shows one row at a time, so the
+ *         whole frame is refreshed "duration" times (blocking).
+ * @param  bitmap: 35 values (0/1), row by row
+ *         duration: number of refresh cycles (not milliseconds)
+ * @retval None
  */
-uint16_t DotMatrix::I2C_ReadData16bit(DotMatrix_DataPacket_TypeDef *dataPacket) {
-    _i2cPort->beginTransmission(_i2cAddress);
-    _i2cPort->write(dataPacket->command);
-    _i2cPort->endTransmission();
-
-    if (_i2cPort->requestFrom(_i2cAddress, static_cast<uint8_t>(2)) != 0) {
-        uint16_t i2cData = _i2cPort->read();
-        i2cData |= (_i2cPort->read() << 8);
-        return i2cData;
+void DotMatrix::drawLedMatrix(const byte bitmap[NUM_LEDS], int duration) {
+    for (int i = 0; i < duration; i++) {
+        for (uint8_t row = 0; row < ROW_SIZE; row++) {
+            const byte *cols = &bitmap[row * COL_SIZE];
+            sendRow(ROW1 + row, cols[0], cols[1], cols[2], cols[3], cols[4]);
+        }
     }
-    return 0;
 }
 
 /**
- * @brief  Reads 16bit data from I2C interface
- * @param  dataPacket: includes protocol to request data
- * @retval I2C 16bit data
+ * @brief  Lights a single LED
+ * @param  numRows: row number (1-7), numCols: column number (1-5)
+ * @retval Transmission status (1 --> No error, 0 --> Transmission error or invalid position)
  */
-uint16_t DotMatrix::I2C_ReadFirmwareData16bit(DotMatrix_DataPacket_TypeDef *dataPacket) {
-    _i2cPort->beginTransmission(_i2cAddress);
-    _i2cPort->write(dataPacket->command);
-    _i2cPort->endTransmission();
+bool DotMatrix::pixelLed(uint8_t numRows, uint8_t numCols) {
+    if (numRows < 1 || numRows > ROW_SIZE || numCols < 1 || numCols > COL_SIZE)
+        return false;
 
-    if (_i2cPort->requestFrom(_i2cAddress, static_cast<uint8_t>(2)) != 0) {
-        i2cData2 = _i2cPort->read();
-        i2cData1 = _i2cPort->read();
-        Serial.print("v"); Serial.print(i2cData1); Serial.print("."); Serial.print(i2cData2);
-    }
-    return 0;
+    uint8_t cols[COL_SIZE] = {0};
+    cols[numCols - 1] = 1;
+    return sendRow(ROW1 + numRows - 1, cols[0], cols[1], cols[2], cols[3], cols[4]);
 }
+
+/**
+ * @brief  Turns off all LEDs
+ * @param  None
+ * @retval None
+ */
+void DotMatrix::resetDotRows(void) {
+    for (uint8_t row = 0; row < ROW_SIZE; row++) {
+        sendRow(ROW1 + row, 0, 0, 0, 0, 0);
+    }
+}
+
+/* Private Functions ---------------------------------------------------------*/
+
+/**
+ * @brief  Applies board specific I2C bus settings
+ * @param  None
+ * @retval None
+ */
+void DotMatrix::configureBus(void) {
+    _i2cPort->begin();
+
+#if defined(ARDUINO_DYM)
+    _i2cPort->setClock(100000);
+#elif defined(ESP32)
+    // ESP32 3.x için özel ayarlar
+    _i2cPort->setClock(50000);           // Daha düşük clock
+    _i2cPort->setTimeout(50);            // Daha kısa timeout
+#if defined(WIRE_HAS_BUFFER_SIZE)
+    _i2cPort->setBufferSize(128);        // Buffer boyutu (eski core'larda bu fonksiyon yok)
+#endif
+#else
+    _i2cPort->setClock(50000);
+#endif
+}
+
+/**
+ * @brief  Sends column data of a row
+ * @param  row: ROW1 to ROW7, colX: 0 (off) or 1 (on)
+ * @retval Transmission status (1 --> No error, Otherwise --> Transmission error)
+ */
+bool DotMatrix::sendRow(uint8_t row, uint8_t col1, uint8_t col2, uint8_t col3, uint8_t col4, uint8_t col5) {
+    _dataPacket.command = row;
+    _dataPacket.dataSize = (uint8_t)0x5;
+    _dataPacket.data[0] = col1;
+    _dataPacket.data[1] = col2;
+    _dataPacket.data[2] = col3;
+    _dataPacket.data[3] = col4;
+    _dataPacket.data[4] = col5;
+    return I2C_SendDataPacket(&_dataPacket);
+}
+
+/* I2C Data Transaction Functions --------------------------------------------*/
 
 /**
  * @brief  Sends data packet based on a custom defined protocol
@@ -424,18 +232,18 @@ uint16_t DotMatrix::I2C_ReadFirmwareData16bit(DotMatrix_DataPacket_TypeDef *data
  * @retval Transmission status (1 --> No error, Otherwise --> Transmission error)
  */
 bool DotMatrix::I2C_SendDataPacket(DotMatrix_DataPacket_TypeDef *dataPacket) {
-    // ESP32 3.3.0 için gelişmiş I2C hata yönetimi
+    // ESP32 3.x için gelişmiş I2C hata yönetimi
     uint8_t retryCount = 0;
     uint8_t result;
-    
+
     do {
-        // ESP32 3.3.0'da I2C buffer temizliği
+        // ESP32 3.x'te I2C buffer temizliği
 #if defined(ESP32)
         if (retryCount > 0) {
             _i2cPort->flush();  // Buffer'ı temizle
         }
 #endif
-        
+
         _i2cPort->beginTransmission(_i2cAddress);
         _i2cPort->write(dataPacket->command);
         _i2cPort->write(dataPacket->dataSize);
@@ -445,21 +253,21 @@ bool DotMatrix::I2C_SendDataPacket(DotMatrix_DataPacket_TypeDef *dataPacket) {
         }
 
         result = _i2cPort->endTransmission();
-        
+
         if (result != 0) {
             retryCount++;
             if (retryCount < 3) {
-                // ESP32 3.3.0 için adaptif gecikme
+                // ESP32 3.x için adaptif gecikme
                 delayMicroseconds(100 + (retryCount * 200));
             }
         }
-        
+
     } while (result != 0 && retryCount < 3);
-    
+
     // Başarılı I2C işlemi sonrası minimal gecikme
     if (result == 0) {
-        delayMicroseconds(20);  // ESP32 3.3.0 için daha kısa gecikme
+        delayMicroseconds(20);
     }
-    
+
     return (result == 0);
 }

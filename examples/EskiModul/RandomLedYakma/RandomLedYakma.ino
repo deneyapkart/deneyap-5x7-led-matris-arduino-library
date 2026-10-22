@@ -14,9 +14,6 @@
 
 DotMatrix LEDMatris;                                  // DotMatrix için Class tanımlaması
 
-int randNumberRow = random(1, 8);                     // 1'den 7 kadar Random satır sayısı ataması
-int randNumberCol = random(1, 6);                     // 1'den 5 kadar Random sütun sayısı ataması
-
 void setup() {
     Serial.begin(115200);                             // Seri haberleşme başlatıldı
     if (!LEDMatris.begin(0x0A)) {                     // begin(slaveAdress) fonksiyonu ile cihazların haberleşmesi başlatıldı
@@ -27,5 +24,8 @@ void setup() {
 }
 
 void loop() {
+    int randNumberRow = random(1, 8);                 // 1'den 7 kadar Random satır sayısı ataması
+    int randNumberCol = random(1, 6);                 // 1'den 5 kadar Random sütun sayısı ataması
     LEDMatris.pixelLed(randNumberRow, randNumberCol); // Random atanan satır ve sutun sayısındaki LED yanmaktadır.
+    delay(100);
 }
